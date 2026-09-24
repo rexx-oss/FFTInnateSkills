@@ -1,0 +1,21 @@
+{
+  "ModId": "rexx.fft.innateskills",
+  "ModName": "FFT Innate Skills",
+  "ModAuthor": "rexx",
+  "ModVersion": "1.0.0",
+  "ModDescription": "Framework for granting innate abilities to player jobs and special characters without using up support slots. Configured for Poach (Secret Hunt) and Tame (Train) by default, with support for adding additional abilities via mod configuration.",
+  "ModDll": "FFTInnateSkills.dll",
+  "Tags": [
+    "Gameplay",
+    "Quality of Life"
+  ],
+  "IsLibrary": false,
+  "ModDependencies": [],
+  "OptionalDependencies": [
+    "fftivc.utility.modloader"
+  ],
+  "SupportedAppId": [
+    "fft_enhanced.exe"
+  ],
+  "ModConfig": "FFTInnateSkills.Configuration.Configurator"
+}
