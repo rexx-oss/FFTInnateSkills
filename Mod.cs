@@ -13,7 +13,7 @@ namespace FFTInnateSkills;
 public class Mod : IMod
 {
     private const string ModId = "rexx.fft.innateskills";
-    private bool _grantArmed;
+    private int _grantArmed;
 
     static Mod()
     {
