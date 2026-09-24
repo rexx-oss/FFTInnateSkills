@@ -1,0 +1,61 @@
+name: Build and Release FFT Innate Skills
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Release Tag'
+        required: false
+        default: 'v1.0.0'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+
+    - name: Build Mod
+      run: dotnet build FFTInnateSkills.csproj -c Release
+
+    - name: Package Mod
+      run: |
+        New-Item -ItemType Directory -Path "package/rexx.fft.innateskills" -Force
+        
+        # Locate the compiled DLL regardless of output folder structure
+        $dll = (Get-ChildItem -Path "bin/Release" -Filter "FFTInnateSkills.dll" -Recurse | Select-Object -First 1).FullName
+        Copy-Item $dll "package/rexx.fft.innateskills/"
+        Copy-Item "ModConfig.json" "package/rexx.fft.innateskills/"
+        
+        Compress-Archive -Path "package/*" -DestinationPath "FFTInnateSkills.zip"
+
+    - name: Create GitHub Release & Attach ZIP
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ github.event.inputs.tag_name || 'v1.0.0' }}
+        name: FFT Innate Skills ${{ github.event.inputs.tag_name || 'v1.0.0' }}
+        body: |
+          Innate skills framework for FFT: The Ivalice Chronicles.
+          Grants **Poach** and **Tame** innately to player jobs and unique story characters.
+
+          ### Requirements:
+          * [FFTIVC Mod Loader (v1.7.3+)](https://github.com/Nenkai/fftivc.utility.modloader/releases)
+          * Compatible with the September 17, 2026 update (Build 24304444 — Denuvo Removal)
+
+          ---
+          *Download the zip below, drop the folder into your `Reloaded-II/Mods/` directory, and enjoy!*
+        files: FFTInnateSkills.zip
+        draft: false
+        prerelease: false
