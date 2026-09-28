@@ -76,11 +76,14 @@ public class Mod : IMod
 
         var abilities = new List<ushort>();
 
-        // Poach and Tame are active by default
-        if (cfg.EnablePoach) abilities.Add(InnateGrant.AbilityPoach);
-        if (cfg.EnableTame)  abilities.Add(InnateGrant.AbilityTame);
+        // Check toggles (all default off)
+        if (cfg.EnableConcentration) abilities.Add(InnateGrant.AbilityConcentration);
+        if (cfg.EnableSafeguard)     abilities.Add(InnateGrant.AbilitySafeguard);
+        if (cfg.EnableAttackBoost)   abilities.Add(InnateGrant.AbilityAttackBoost);
+        if (cfg.EnableTame)          abilities.Add(InnateGrant.AbilityTame);
+        if (cfg.EnablePoach)         abilities.Add(InnateGrant.AbilityPoach);
 
-        // Parse any additional custom abilities specified in the config
+        // Parse any additional custom abilities from the text box
         if (!string.IsNullOrWhiteSpace(cfg.CustomAbilityIds))
         {
             var parts = cfg.CustomAbilityIds.Split(new[] { ',', ';', ' ' }, StringSplitOptions.RemoveEmptyEntries);
