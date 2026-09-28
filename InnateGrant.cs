@@ -8,28 +8,40 @@ namespace FFTInnateSkills;
 internal sealed class InnateGrant
 {
     // Ability IDs (Decimal / Hex)
-    public const ushort AbilityAttackBoost   = 465; // 0x01D1 (Attack UP)
-    public const ushort AbilityConcentration = 469; // 0x01D5 (Concentrate)
-    public const ushort AbilityTame          = 470; // 0x01D6 (Train)
-    public const ushort AbilityPoach         = 471; // 0x01D7 (Secret Hunt)
-    public const ushort AbilitySafeguard     = 475; // 0x01DB (Maintenance)
+    public const ushort AbilityAttackBoost        = 465; // 0x01D1 (Attack UP)
+    public const ushort AbilityDefenseBoost       = 466; // 0x01D2 (Defense UP)
+    public const ushort AbilityMagickBoost        = 467; // 0x01D3 (Magic Attack UP)
+    public const ushort AbilityMagickDefenseBoost = 468; // 0x01D4 (Magic Defend UP)
+    public const ushort AbilityConcentration      = 469; // 0x01D5 (Concentrate)
+    public const ushort AbilityTame               = 470; // 0x01D6 (Train)
+    public const ushort AbilityPoach              = 471; // 0x01D7 (Secret Hunt)
+    public const ushort AbilityBrawler            = 472; // 0x01D8 (Martial Arts)
+    public const ushort AbilitySafeguard          = 475; // 0x01DB (Maintenance)
+    public const ushort AbilityTreasureHunter     = 509; // 0x01FD (Move-Find Item)
 
-    // Standard player generics and unique story characters
-    public static readonly int[] TargetJobIds =
+    // Player-only Unique Story Jobs (Enemies NEVER use these)
+    public static readonly int[] StoryJobIds =
     {
-        1, 2, 3,                                 // Ramza (Chapters 1, 2/3, 4)
-        13, 22, 25, 26, 30, 50, 72,              // Orlandeau, Mustadio, Rapha, Marach, Agrias, Cloud, Reis Dragon
-        74, 75, 76, 77, 78, 79, 80, 81, 82, 83,  // Standard Generics (Male & Female)
+        1, 2, 3,                    // Ramza (Chapters 1, 2/3, 4)
+        13, 22, 25, 26, 30, 50, 72  // Orlandeau, Mustadio, Rapha, Marach, Agrias, Cloud, Reis Dragon
+    };
+
+    // Generic Jobs (Shared with enemy spawns)
+    public static readonly int[] GenericJobIds =
+    {
+        74, 75, 76, 77, 78, 79, 80, 81, 82, 83, // Standard Male & Female Generic Jobs (Squire to Mime)
         84, 85, 86, 87, 88, 89, 90, 91, 92, 93
     };
 
     private readonly FftivcJobTable _table;
     private readonly List<ushort> _abilitiesToGrant;
+    private readonly bool _includeGenerics;
 
-    public InnateGrant(FftivcJobTable table, List<ushort> abilitiesToGrant)
+    public InnateGrant(FftivcJobTable table, List<ushort> abilitiesToGrant, bool includeGenerics)
     {
         _table = table;
         _abilitiesToGrant = abilitiesToGrant;
+        _includeGenerics = includeGenerics;
     }
 
     public void Run()
@@ -45,7 +57,14 @@ internal sealed class InnateGrant
 
         if (!_table.IsReady()) return;
 
-        foreach (var job in TargetJobIds)
+        // Determine targets: Story units only OR all jobs
+        var targetJobs = new List<int>(StoryJobIds);
+        if (_includeGenerics)
+        {
+            targetJobs.AddRange(GenericJobIds);
+        }
+
+        foreach (var job in targetJobs)
         {
             var innates = _table.GetInnates(job);
             if (innates == null) continue;
