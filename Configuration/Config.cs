@@ -2,71 +2,158 @@ using System.ComponentModel;
 
 namespace FFTInnateSkills.Configuration;
 
-/// <summary>
-/// Configuration for innate skill grants.
-/// All options default OFF for full manual control.
-/// </summary>
 public class Config : Configurable<Config>
 {
     [DisplayName("Apply to Generic Jobs (Warning: Enemies Share)")]
-    [Description("When ON, innates apply to all 20 generic jobs (Squires, Knights, Chemists, Thieves, etc.). " +
-                 "Enemy human soldiers of those jobs will also receive the abilities. " +
-                 "When OFF, innates are strictly applied to unique story characters (Ramza, Agrias, Cid, Mustadio, etc.) " +
-                 "with 0% enemy spillover. Default: off.")]
+    [Description("When ON, innates apply to all generic jobs (enemy soldiers will share them). " +
+                 "When OFF, strictly applied to unique story characters (Ramza, Agrias, Cid, etc.) with 0% enemy spillover. Default: off.")]
     [DefaultValue(false)]
     public bool IncludeGenericJobs { get; set; } = false;
 
-    [DisplayName("Enable Innate Treasure Hunter (509)")]
-    [Description("Grants Treasure Hunter (Move-Find Item, 509 / 0x01FD) innately. Pick up hidden treasures by walking on tiles. Default: off.")]
-    [DefaultValue(false)]
-    public bool EnableTreasureHunter { get; set; } = false;
+    // --- Core Combat Passives ---
 
-    [DisplayName("Enable Innate Concentration (469)")]
-    [Description("Grants Concentration (Concentrate, 469 / 0x01D5) innately. Physical attacks ignore target physical evasion. Default: off.")]
+    [DisplayName("Dual Wield (477)")]
+    [Description("Two Swords: Wield two one-handed weapons simultaneously. Default: off.")]
+    [DefaultValue(false)]
+    public bool EnableDualWield { get; set; } = false;
+
+    [DisplayName("Doublehand (476)")]
+    [Description("Two Hands: Hold a one-handed weapon with two hands to increase damage. Default: off.")]
+    [DefaultValue(false)]
+    public bool EnableDoublehand { get; set; } = false;
+
+    [DisplayName("Swiftness (491)")]
+    [Description("Short Charge: Halves spell casting charge time. Default: off.")]
+    [DefaultValue(false)]
+    public bool EnableSwiftness { get; set; } = false;
+
+    [DisplayName("Halve MP (493)")]
+    [Description("Cuts all MP costs in half. Default: off.")]
+    [DefaultValue(false)]
+    public bool EnableHalveMP { get; set; } = false;
+
+    [DisplayName("Concentration (469)")]
+    [Description("Concentrate: Physical attacks ignore target evasion. Default: off.")]
     [DefaultValue(false)]
     public bool EnableConcentration { get; set; } = false;
 
-    [DisplayName("Enable Innate Safeguard (475)")]
-    [Description("Grants Safeguard (Maintenance, 475 / 0x01DB) innately. Protects equipment from theft and destruction. Default: off.")]
-    [DefaultValue(false)]
-    public bool EnableSafeguard { get; set; } = false;
-
-    [DisplayName("Enable Innate Attack Boost (465)")]
-    [Description("Grants Attack Boost (Attack UP, 465 / 0x01D1) innately. Increases physical damage by 33%. Default: off.")]
+    [DisplayName("Attack Boost (465)")]
+    [Description("Attack UP: Increases physical attack damage by 33%. Default: off.")]
     [DefaultValue(false)]
     public bool EnableAttackBoost { get; set; } = false;
 
-    [DisplayName("Enable Innate Defense Boost (466)")]
-    [Description("Grants Defense Boost (Defense UP, 466 / 0x01D2) innately. Reduces incoming physical damage by 33%. Default: off.")]
+    [DisplayName("Defense Boost (466)")]
+    [Description("Defense UP: Reduces physical damage taken by 33%. Default: off.")]
     [DefaultValue(false)]
     public bool EnableDefenseBoost { get; set; } = false;
 
-    [DisplayName("Enable Innate Magick Boost (467)")]
-    [Description("Grants Magick Boost (Magic Attack UP, 467 / 0x01D3) innately. Increases magic damage and spell power by 33%. Default: off.")]
+    [DisplayName("Magick Boost (467)")]
+    [Description("Magic Attack UP: Increases magic damage and healing by 33%. Default: off.")]
     [DefaultValue(false)]
     public bool EnableMagickBoost { get; set; } = false;
 
-    [DisplayName("Enable Innate Magick Defense Boost (468)")]
-    [Description("Grants Magick Defense Boost (Magic Defend UP, 468 / 0x01D4) innately. Reduces incoming magic damage by 33%. Default: off.")]
+    [DisplayName("Magick Defense Boost (468)")]
+    [Description("Magic Defend UP: Reduces magic damage taken by 33%. Default: off.")]
     [DefaultValue(false)]
     public bool EnableMagickDefenseBoost { get; set; } = false;
 
-    [DisplayName("Enable Innate Brawler (472)")]
-    [Description("Grants Brawler (Martial Arts, 472 / 0x01D8) innately. Significantly increases unarmed bare-handed attack damage. Default: off.")]
+    [DisplayName("Brawler (472)")]
+    [Description("Martial Arts: Greatly increases unarmed barehanded damage. Default: off.")]
     [DefaultValue(false)]
     public bool EnableBrawler { get; set; } = false;
 
-    [DisplayName("Enable Innate Tame (470)")]
-    [Description("Grants Tame (Train, 470 / 0x01D6) innately. Recruits monsters reduced to Critical HP with a basic attack. Default: off.")]
-    [DefaultValue(false)]
-    public bool EnableTame { get; set; } = false;
+    // --- Utility & Loot Passives ---
 
-    [DisplayName("Enable Innate Poach (471)")]
-    [Description("Grants Poach (Secret Hunt, 471 / 0x01D7) innately. Poaches monsters upon delivering the killing blow. Default: off.")]
+    [DisplayName("Treasure Hunter (509)")]
+    [Description("Move-Find Item: Discover hidden treasures on battlefield tiles. Default: off.")]
+    [DefaultValue(false)]
+    public bool EnableTreasureHunter { get; set; } = false;
+
+    [DisplayName("Safeguard (475)")]
+    [Description("Maintenance: Protects equipment from theft and destruction. Default: off.")]
+    [DefaultValue(false)]
+    public bool EnableSafeguard { get; set; } = false;
+
+    [DisplayName("Poach (471)")]
+    [Description("Secret Hunt: Poaches monsters upon delivering the killing blow. Default: off.")]
     [DefaultValue(false)]
     public bool EnablePoach { get; set; } = false;
 
+    [DisplayName("Tame (470)")]
+    [Description("Train: Recruits monsters reduced to Critical HP with a basic attack. Default: off.")]
+    [DefaultValue(false)]
+    public bool EnableTame { get; set; } = false;
+
+    [DisplayName("Beastmaster (478)")]
+    [Description("Monster Skill: Unlocks hidden special skills on adjacent allied monsters. Default: off.")]
+    [DefaultValue(false)]
+    public bool EnableBeastmaster { get; set; } = false;
+
+    [DisplayName("Monster Talk (473)")]
+    [Description("Beast Tongue: Allows human speech abilities (Talk Skill) to work on monsters. Default: off.")]
+    [DefaultValue(false)]
+    public bool EnableMonsterTalk { get; set; } = false;
+
+    [DisplayName("Throw Item (474)")]
+    [Description("Enables using Item commands at ranged distance. Default: off.")]
+    [DefaultValue(false)]
+    public bool EnableThrowItem { get; set; } = false;
+
+    [DisplayName("Defend (479)")]
+    [Description("Adds the Defend command to action menus. Default: off.")]
+    [DefaultValue(false)]
+    public bool EnableDefend { get; set; } = false;
+
+    [DisplayName("Equip Change (480)")]
+    [Description("Enables swapping equipment mid-battle. Default: off.")]
+    [DefaultValue(false)]
+    public bool EnableEquipChange { get; set; } = false;
+
+    // --- Equip Gear Passives ---
+
+    [DisplayName("Equip Shields (481)")]
+    [DefaultValue(false)]
+    public bool EnableEquipShields { get; set; } = false;
+
+    [DisplayName("Equip Swords (482)")]
+    [DefaultValue(false)]
+    public bool EnableEquipSwords { get; set; } = false;
+
+    [DisplayName("Equip Knives (483)")]
+    [DefaultValue(false)]
+    public bool EnableEquipKnives { get; set; } = false;
+
+    [DisplayName("Equip Katana (484)")]
+    [DefaultValue(false)]
+    public bool EnableEquipKatana { get; set; } = false;
+
+    [DisplayName("Equip Axes (485)")]
+    [DefaultValue(false)]
+    public bool EnableEquipAxes { get; set; } = false;
+
+    [DisplayName("Equip Crossbows (486)")]
+    [DefaultValue(false)]
+    public bool EnableEquipCrossbows { get; set; } = false;
+
+    [DisplayName("Equip Guns (487)")]
+    [DefaultValue(false)]
+    public bool EnableEquipGuns { get; set; } = false;
+
+    [DisplayName("Equip Heavy Armor (488)")]
+    [DefaultValue(false)]
+    public bool EnableEquipHeavyArmor { get; set; } = false;
+
+    [DisplayName("Equip Clothing (489)")]
+    [DefaultValue(false)]
+    public bool EnableEquipClothing { get; set; } = false;
+
+    [DisplayName("Equip Robes (490)")]
+    [DefaultValue(false)]
+    public bool EnableEquipRobes { get; set; } = false;
+
+    // --- Custom IDs ---
+
     [DisplayName("Additional Custom Ability IDs")]
-    [Description("Add any extra abilities to grant innately to free slots. Enter comma-separated hex or decimal IDs (e.g., '0x01DE, 478'). Default: empty.")]
+    [Description("Add any extra abilities to grant innately to free slots. Enter comma-separated hex or decimal IDs.")]
     public string CustomAbilityIds { get; set; } = "";
 }
