@@ -17,7 +17,6 @@ public class Mod : IMod
 
     static Mod()
     {
-        // Dynamic assembly resolver for Nenkai's FFTIVC Mod Loader 1.7.x+
         AppDomain.CurrentDomain.AssemblyResolve += (sender, args) =>
         {
             var requested = new AssemblyName(args.Name);
@@ -64,7 +63,6 @@ public class Mod : IMod
     {
         FftivcJobTable? table = null;
 
-        // Poll up to 10 seconds to allow the mod loader to register its controller
         for (int i = 0; i < 100; i++)
         {
             table = FftivcJobTable.TryCreate(modLoader);
@@ -76,14 +74,19 @@ public class Mod : IMod
 
         var abilities = new List<ushort>();
 
-        // Check toggles (all default off)
-        if (cfg.EnableConcentration) abilities.Add(InnateGrant.AbilityConcentration);
-        if (cfg.EnableSafeguard)     abilities.Add(InnateGrant.AbilitySafeguard);
-        if (cfg.EnableAttackBoost)   abilities.Add(InnateGrant.AbilityAttackBoost);
-        if (cfg.EnableTame)          abilities.Add(InnateGrant.AbilityTame);
-        if (cfg.EnablePoach)         abilities.Add(InnateGrant.AbilityPoach);
+        // Collect toggled abilities
+        if (cfg.EnableTreasureHunter)     abilities.Add(InnateGrant.AbilityTreasureHunter);
+        if (cfg.EnableConcentration)      abilities.Add(InnateGrant.AbilityConcentration);
+        if (cfg.EnableSafeguard)          abilities.Add(InnateGrant.AbilitySafeguard);
+        if (cfg.EnableAttackBoost)        abilities.Add(InnateGrant.AbilityAttackBoost);
+        if (cfg.EnableDefenseBoost)       abilities.Add(InnateGrant.AbilityDefenseBoost);
+        if (cfg.EnableMagickBoost)        abilities.Add(InnateGrant.AbilityMagickBoost);
+        if (cfg.EnableMagickDefenseBoost) abilities.Add(InnateGrant.AbilityMagickDefenseBoost);
+        if (cfg.EnableBrawler)            abilities.Add(InnateGrant.AbilityBrawler);
+        if (cfg.EnableTame)               abilities.Add(InnateGrant.AbilityTame);
+        if (cfg.EnablePoach)              abilities.Add(InnateGrant.AbilityPoach);
 
-        // Parse any additional custom abilities from the text box
+        // Parse any additional custom abilities from text box
         if (!string.IsNullOrWhiteSpace(cfg.CustomAbilityIds))
         {
             var parts = cfg.CustomAbilityIds.Split(new[] { ',', ';', ' ' }, StringSplitOptions.RemoveEmptyEntries);
@@ -92,7 +95,7 @@ public class Mod : IMod
                 string clean = part.Trim();
                 if (clean.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
                 {
-                    if (ushort.TryParse(clean.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out ushort hexVal))
+                    if (ushort.TryParse(clean[2..], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out ushort hexVal))
                         abilities.Add(hexVal);
                 }
                 else if (ushort.TryParse(clean, out ushort decVal))
@@ -102,7 +105,7 @@ public class Mod : IMod
             }
         }
 
-        new InnateGrant(table, abilities).Run();
+        new InnateGrant(table, abilities, cfg.IncludeGenericJobs).Run();
     }
 
     private static string ResolveConfigPath(string modDir)
