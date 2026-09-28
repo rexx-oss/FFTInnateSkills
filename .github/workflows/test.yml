@@ -1,0 +1,54 @@
+name: Build TEST Diagnostic Mod
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+
+    - name: Build Mod in TEST Folder
+      run: dotnet build TEST/FFTInnateSkills.csproj -c Release
+
+    - name: Package Mod
+      run: |
+        New-Item -ItemType Directory -Path "package/rexx.fft.innateskills" -Force
+        
+        # Grab the compiled DLL from the TEST build output
+        $dll = (Get-ChildItem -Path "TEST/bin/Release" -Filter "FFTInnateSkills.dll" -Recurse | Select-Object -First 1).FullName
+        Copy-Item $dll "package/rexx.fft.innateskills/"
+        
+        # Copy ModConfig.json (from TEST or root)
+        if (Test-Path "TEST/ModConfig.json") {
+            Copy-Item "TEST/ModConfig.json" "package/rexx.fft.innateskills/"
+        } elseif (Test-Path "ModConfig.json") {
+            Copy-Item "ModConfig.json" "package/rexx.fft.innateskills/"
+        }
+        
+        Compress-Archive -Path "package/*" -DestinationPath "FFTInnateSkills-diag.zip"
+
+    - name: Create GitHub Release & Attach ZIP
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: v1.2.0-diag
+        name: FFT Innate Skills Diagnostic Build
+        body: |
+          Diagnostic build to dump battle memory units (Unit 0, 1, 4, 5) to `unit-struct-dump.txt`.
+        files: FFTInnateSkills-diag.zip
+        draft: false
+        prerelease: false
