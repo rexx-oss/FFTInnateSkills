@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -14,10 +15,8 @@ public class Mod : IMod
     private const string ModId = "rexx.fft.innateskills";
 
     // In-battle sentinels verified in Treasure Master
-    private const long Slot9Addr      = 0x140782A54L; // 0xFFFFFFFF when in battle
-    private const long BattleModeAddr = 0x1409069A0L; // != 0 on battlefield
-    private const long UnitArrayBase  = 0x141851F00L; // Base of the 512-byte unit structs
-    private const long UnitStride     = 0x200L;       // 512 bytes per combatant
+    private const long Slot9Addr      = 0x140782A54L; // 0xFFFFFFFF in battle
+    private const long BattleModeAddr = 0x1409069A0L; // != 0 in battle
 
     private CancellationTokenSource? _cts;
     private bool _dumpedThisBattle;
@@ -45,10 +44,10 @@ public class Mod : IMod
 
                     if (inBattle && !_dumpedThisBattle)
                     {
-                        // Give the game 2 seconds to finish placing all units on the field
-                        await Task.Delay(2000, token);
+                        // Wait 3 seconds after loading to make sure battle units are placed in memory
+                        await Task.Delay(3000, token);
 
-                        DumpBattleUnits(outputPath);
+                        ScanAndDumpRamza(outputPath);
                         _dumpedThisBattle = true;
                     }
                     else if (!inBattle)
@@ -63,45 +62,86 @@ public class Mod : IMod
         }, token);
     }
 
-    private static void DumpBattleUnits(string outputPath)
+    private static void ScanAndDumpRamza(string outputPath)
     {
         var sb = new StringBuilder();
-        sb.AppendLine($"=== FFT BATTLE UNIT MEMORY DUMP ({DateTime.Now}) ===");
+        sb.AppendLine($"=== FFT BATTLE UNIT REAL-TIME SCAN ({DateTime.Now}) ===");
         sb.AppendLine($"Module ASLR Offset: 0x{Mem.AslrOffset:X}");
         sb.AppendLine();
 
-        // Dump Unit 0 (Player 1 / Ramza), Unit 1 (Player Generic), Unit 4 (Player 5), and Unit 5 (Enemy 1)
-        int[] unitsToDump = { 0, 1, 4, 5 };
+        var process = Process.GetCurrentProcess();
+        var mainModule = process.MainModule;
+        if (mainModule == null) return;
 
-        foreach (int idx in unitsToDump)
+        long baseAddr = mainModule.BaseAddress.ToInt64();
+        int size = mainModule.ModuleMemorySize;
+
+        byte[] asciiRamza = Encoding.ASCII.GetBytes("Ramza");
+        byte[] unicodeRamza = Encoding.Unicode.GetBytes("Ramza");
+
+        // Scan the module's data space in 1MB chunks
+        int chunkSize = 0x100000;
+        int hitCount = 0;
+
+        for (int offset = 0; offset < size; offset += chunkSize)
         {
-            long addr = UnitArrayBase + (idx * UnitStride);
-            byte[] data = Mem.ReadBytes(addr, 128); // Read first 128 bytes of the struct
+            int toRead = Math.Min(chunkSize + 64, size - offset);
+            byte[] chunk = Mem.ReadBytes(baseAddr + offset, toRead);
+            if (chunk.Length == 0) continue;
 
-            string label = idx switch
+            for (int i = 0; i < chunk.Length - 16; i++)
             {
-                0 => "Unit 0 (Player 1 / Ramza)",
-                1 => "Unit 1 (Player 2 / Generic)",
-                4 => "Unit 4 (Player 5)",
-                5 => "Unit 5 (Enemy 1)",
-                _ => $"Unit {idx}"
-            };
+                bool isAscii = MatchPattern(chunk, i, asciiRamza);
+                bool isUnicode = !isAscii && MatchPattern(chunk, i, unicodeRamza);
 
-            sb.AppendLine($"--- {label} at 0x{addr:X} ---");
-            for (int r = 0; r < data.Length; r += 16)
-            {
-                sb.Append($"+0x{r:X2}: ");
-                for (int b = 0; b < 16; b++)
+                if (isAscii || isUnicode)
                 {
-                    sb.Append($"{data[r + b]:X2} ");
-                    if (b == 7) sb.Append(" ");
+                    hitCount++;
+                    long matchAddress = baseAddr + offset + i;
+
+                    sb.AppendLine($"[MATCH #{hitCount}] {(isAscii ? "ASCII" : "Unicode")} 'Ramza' found at 0x{matchAddress:X}");
+                    sb.AppendLine($"Offset from Module Base: +0x{(matchAddress - baseAddr):X}");
+
+                    // Dump 64 bytes before the name and 128 bytes after the name
+                    long startDump = Math.Max(baseAddr, matchAddress - 64);
+                    byte[] unitSlice = Mem.ReadBytes(startDump, 192);
+
+                    sb.AppendLine($"--- Memory Window around Match (0x{startDump:X}) ---");
+                    for (int r = 0; r < unitSlice.Length; r += 16)
+                    {
+                        sb.Append($"+0x{r:X2}: ");
+                        for (int b = 0; b < 16 && (r + b) < unitSlice.Length; b++)
+                        {
+                            sb.Append($"{unitSlice[r + b]:X2} ");
+                            if (b == 7) sb.Append(" ");
+                        }
+                        sb.AppendLine();
+                    }
+                    sb.AppendLine();
+
+                    if (hitCount >= 5) break; // First few hits are enough to identify the unit table
                 }
-                sb.AppendLine();
             }
-            sb.AppendLine();
+
+            if (hitCount >= 5) break;
+        }
+
+        if (hitCount == 0)
+        {
+            sb.AppendLine("No matches for 'Ramza' found in current module memory.");
         }
 
         File.WriteAllText(outputPath, sb.ToString());
+    }
+
+    private static bool MatchPattern(byte[] buffer, int index, byte[] pattern)
+    {
+        if (index + pattern.Length > buffer.Length) return false;
+        for (int p = 0; p < pattern.Length; p++)
+        {
+            if (buffer[index + p] != pattern[p]) return false;
+        }
+        return true;
     }
 
     public void Suspend() { }
