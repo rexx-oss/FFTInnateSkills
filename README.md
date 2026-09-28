@@ -7,12 +7,9 @@ All abilities are **default OFF**—open the mod configuration in Reloaded-II to
 ---
 
 ### Supported Innate Skills
-* **Concentration (`469`):** Ignores physical evasion.
-* **Safeguard (`475`):** Protects equipment from theft and breaking.
-* **Attack Boost (`465`):** +33% physical damage.
-* **Tame (`470`):** Recruit monsters when reduced to Critical HP.
-* **Poach (`471`):** Poaches monsters upon delivering the killing blow.
-* **Custom IDs:** Enter any custom ability IDs (hex or decimal) to grant extra skills.
+* **10 Skills Supported:** Treasure Hunter (`509`), Concentration (`469`), Safeguard (`475`), Attack Boost (`465`), Defense Boost (`466`), Magick Boost (`467`), Magick Def Boost (`468`), Brawler (`472`), Tame (`470`), Poach (`471`), plus custom IDs.
+* **No Enemy Spillover:** Keep `Apply to Generic Jobs` set to `OFF` to restrict innates to unique story units only. Set to `ON` to include all generic jobs (enemies will share them).
+* **⚠️ 4-Slot Engine Cap:** The game hard-caps jobs at **4 innates max**. Run only **2–3 skills simultaneously** to prevent overflowing.
 
 ---
 
@@ -22,15 +19,14 @@ All abilities are **default OFF**—open the mod configuration in Reloaded-II to
 
 ---
 
-### Installation
-1. Download `FFTInnateSkills.zip` from [Releases](../../releases).
-2. Extract into `FINAL FANTASY TACTICS - The Ivalice Chronicles/Reloaded-II/Mods/`.
-3. In Reloaded-II, click **Configure Mod** to enable your chosen skills.
-4. Launch the game!
+### Quick Start
+1. Drop the folder into `Reloaded-II/Mods/`.
+2. Configure your toggles in Reloaded-II.
+3. Requires [FFTIVC Mod Loader 1.7.3+](https://github.com/Nenkai/fftivc.utility.modloader/releases).
 
 ---
 
 ### Credits
 * **Mod Loader:** [Nenkai](https://github.com/Nenkai)
 * **Job Table Reference:** [prawl](https://github.com/prawl/FFTTreasureMaster)
-* **Mod:** Vibe-coded by rexx & Google Gemini 🤖
+* **Mod:** Vibe-coded with Google Gemini 🤖
