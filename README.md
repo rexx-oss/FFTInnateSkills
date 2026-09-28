@@ -6,9 +6,15 @@ All abilities are **default OFF**—open the mod configuration in Reloaded-II to
 
 
 ### Supported Innate Skills
-* **10 Skills Supported:** Treasure Hunter (`509`), Concentration (`469`), Safeguard (`475`), Attack Boost (`465`), Defense Boost (`466`), Magick Boost (`467`), Magick Def Boost (`468`), Brawler (`472`), Tame (`470`), Poach (`471`), plus custom IDs.
-* **No Enemy Spillover:** Keep `Apply to Generic Jobs` set to `OFF` to restrict innates to unique story units only. Set to `ON` to include all generic jobs (enemies will share them).
-* **⚠️ 4-Slot Engine Cap:** The game hard-caps jobs at **4 innates max**. Run only **2–3 skills simultaneously** to prevent overflowing.
+* **Combat Passives:** Dual Wield (`477`), Doublehand (`476`), Swiftness (`491`), Halve MP (`493`), Concentration (`469`), Attack Boost (`465`), Defense Boost (`466`), Magick Boost (`467`), Magick Def Boost (`468`), Brawler (`472`).
+* **Utility & Loot:** Treasure Hunter (`509`), Safeguard (`475`), Poach (`471`), Tame (`470`), Beastmaster (`478`), Monster Talk (`473`), Throw Item (`474`), Defend (`479`), Equip Change (`480`).
+* **Equip Category Passives:** Equip Shields, Swords, Knives, Katana, Axes, Crossbows, Guns, Heavy Armor, Clothing, Robes (`481`–`490`).
+* **Custom Skills:** Enter any custom ability IDs (hex or decimal) to grant unlisted abilities.
+
+
+### The 4-Slot Engine Cap
+The game engine hard-caps every job at **4 innate abilities max**.  
+Turn on only **2 to 3 abilities at a time** to avoid hitting the cap (especially on jobs that already have native innates, like Ninja or Chemist).
 
 
 ### Requirements
