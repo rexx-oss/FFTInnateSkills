@@ -74,19 +74,42 @@ public class Mod : IMod
 
         var abilities = new List<ushort>();
 
-        // Collect toggled abilities
-        if (cfg.EnableTreasureHunter)     abilities.Add(InnateGrant.AbilityTreasureHunter);
+        // Core Combat
+        if (cfg.EnableDualWield)          abilities.Add(InnateGrant.AbilityDualWield);
+        if (cfg.EnableDoublehand)         abilities.Add(InnateGrant.AbilityDoublehand);
+        if (cfg.EnableSwiftness)          abilities.Add(InnateGrant.AbilitySwiftness);
+        if (cfg.EnableHalveMP)            abilities.Add(InnateGrant.AbilityHalveMP);
         if (cfg.EnableConcentration)      abilities.Add(InnateGrant.AbilityConcentration);
-        if (cfg.EnableSafeguard)          abilities.Add(InnateGrant.AbilitySafeguard);
         if (cfg.EnableAttackBoost)        abilities.Add(InnateGrant.AbilityAttackBoost);
         if (cfg.EnableDefenseBoost)       abilities.Add(InnateGrant.AbilityDefenseBoost);
         if (cfg.EnableMagickBoost)        abilities.Add(InnateGrant.AbilityMagickBoost);
         if (cfg.EnableMagickDefenseBoost) abilities.Add(InnateGrant.AbilityMagickDefenseBoost);
         if (cfg.EnableBrawler)            abilities.Add(InnateGrant.AbilityBrawler);
-        if (cfg.EnableTame)               abilities.Add(InnateGrant.AbilityTame);
-        if (cfg.EnablePoach)              abilities.Add(InnateGrant.AbilityPoach);
 
-        // Parse any additional custom abilities from text box
+        // Utility & Loot
+        if (cfg.EnableTreasureHunter)     abilities.Add(InnateGrant.AbilityTreasureHunter);
+        if (cfg.EnableSafeguard)          abilities.Add(InnateGrant.AbilitySafeguard);
+        if (cfg.EnablePoach)              abilities.Add(InnateGrant.AbilityPoach);
+        if (cfg.EnableTame)               abilities.Add(InnateGrant.AbilityTame);
+        if (cfg.EnableBeastmaster)        abilities.Add(InnateGrant.AbilityBeastmaster);
+        if (cfg.EnableMonsterTalk)        abilities.Add(InnateGrant.AbilityMonsterTalk);
+        if (cfg.EnableThrowItem)          abilities.Add(InnateGrant.AbilityThrowItem);
+        if (cfg.EnableDefend)             abilities.Add(InnateGrant.AbilityDefend);
+        if (cfg.EnableEquipChange)        abilities.Add(InnateGrant.AbilityEquipChange);
+
+        // Equip Gear
+        if (cfg.EnableEquipShields)       abilities.Add(InnateGrant.AbilityEquipShields);
+        if (cfg.EnableEquipSwords)        abilities.Add(InnateGrant.AbilityEquipSwords);
+        if (cfg.EnableEquipKnives)        abilities.Add(InnateGrant.AbilityEquipKnives);
+        if (cfg.EnableEquipKatana)        abilities.Add(InnateGrant.AbilityEquipKatana);
+        if (cfg.EnableEquipAxes)          abilities.Add(InnateGrant.AbilityEquipAxes);
+        if (cfg.EnableEquipCrossbows)     abilities.Add(InnateGrant.AbilityEquipCrossbows);
+        if (cfg.EnableEquipGuns)          abilities.Add(InnateGrant.AbilityEquipGuns);
+        if (cfg.EnableEquipHeavyArmor)    abilities.Add(InnateGrant.AbilityEquipHeavyArmor);
+        if (cfg.EnableEquipClothing)      abilities.Add(InnateGrant.AbilityEquipClothing);
+        if (cfg.EnableEquipRobes)         abilities.Add(InnateGrant.AbilityEquipRobes);
+
+        // Custom IDs
         if (!string.IsNullOrWhiteSpace(cfg.CustomAbilityIds))
         {
             var parts = cfg.CustomAbilityIds.Split(new[] { ',', ';', ' ' }, StringSplitOptions.RemoveEmptyEntries);
