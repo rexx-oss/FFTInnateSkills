@@ -40,6 +40,13 @@ internal static class Mem
         return ReadProcessMemory(Self, (nint)a, s, 1, out _) ? s[0] : (byte)0;
     }
 
+    public static ushort U16(long a)
+    {
+        a = Rebase(a);
+        var s = _scratch ??= new byte[8];
+        return ReadProcessMemory(Self, (nint)a, s, 2, out _) ? (ushort)(s[0] | (s[1] << 8)) : (ushort)0;
+    }
+
     public static uint U32(long a)
     {
         a = Rebase(a);
@@ -56,8 +63,20 @@ internal static class Mem
         return buf;
     }
 
+    public static void W16(long a, ushort v)
+    {
+        a = Rebase(a);
+        var s = _scratch ??= new byte[8];
+        s[0] = (byte)v;
+        s[1] = (byte)(v >> 8);
+        WriteProcessMemory(Self, (nint)a, s, 2, out _);
+    }
+
     [DllImport("kernel32.dll", SetLastError = true)]
     private static extern bool ReadProcessMemory(nint h, nint addr, [Out] byte[] buf, nuint size, out nuint read);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern bool WriteProcessMemory(nint h, nint addr, byte[] buf, nuint size, out nuint written);
 
     [DllImport("kernel32.dll")]
     private static extern nint GetCurrentProcess();
