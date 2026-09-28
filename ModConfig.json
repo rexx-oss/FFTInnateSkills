@@ -2,8 +2,8 @@
   "ModId": "rexx.fft.innateskills",
   "ModName": "FFT Innate Skills",
   "ModAuthor": "rexx",
-  "ModVersion": "1.4.0",
-  "ModDescription": "Grants configurable innate abilities (Treasure Hunter, Concentration, Safeguard, Attack Boost, Defense Boost, Magick Boost, Magick Defense Boost, Brawler, Tame, Poach). Toggle between strictly player-exclusive Unique Story Units (0% enemy spillover) or All Jobs.",
+  "ModVersion": "1.5.0",
+  "ModDescription": "Grants configurable innate abilities across all vanilla Support, Utility, and Equip categories (Dual Wield, Swiftness, Halve MP, Treasure Hunter, Poach, etc.) with a toggle for Player-Exclusive Story Units vs All Jobs.",
   "ModDll": "FFTInnateSkills.dll",
   "Tags": [
     "Gameplay",
