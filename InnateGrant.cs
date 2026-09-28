@@ -7,9 +7,12 @@ namespace FFTInnateSkills;
 
 internal sealed class InnateGrant
 {
-    // Default Ability IDs in FFT
-    public const ushort AbilityPoach = 0x01D7; // Secret Hunt (471)
-    public const ushort AbilityTame  = 0x01D6; // Train (470)
+    // Ability IDs (Decimal / Hex)
+    public const ushort AbilityAttackBoost   = 465; // 0x01D1 (Attack UP)
+    public const ushort AbilityConcentration = 469; // 0x01D5 (Concentrate)
+    public const ushort AbilityTame          = 470; // 0x01D6 (Train)
+    public const ushort AbilityPoach         = 471; // 0x01D7 (Secret Hunt)
+    public const ushort AbilitySafeguard     = 475; // 0x01DB (Maintenance)
 
     // Standard player generics and unique story characters
     public static readonly int[] TargetJobIds =
