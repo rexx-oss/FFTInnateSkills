@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -14,9 +13,12 @@ public class Mod : IMod
 {
     private const string ModId = "rexx.fft.innateskills";
 
-    // In-battle sentinels verified in Treasure Master
+    // In-battle sentinels verified from Treasure Master
     private const long Slot9Addr      = 0x140782A54L; // 0xFFFFFFFF in battle
-    private const long BattleModeAddr = 0x1409069A0L; // != 0 in battle
+    private const long BattleModeAddr = 0x1409069A0L; // != 0 on battlefield
+    private const long Slot0Base      = 0x141851F00L; // Base of the 512-byte unit block
+    private const long SlotStride     = 0x200L;       // 512 bytes per slot
+    private const int  TotalSlots     = 65;           // 65 total combatant slots in FFT
 
     private CancellationTokenSource? _cts;
     private bool _dumpedThisBattle;
@@ -44,10 +46,10 @@ public class Mod : IMod
 
                     if (inBattle && !_dumpedThisBattle)
                     {
-                        // Wait 3 seconds after loading to make sure battle units are placed in memory
+                        // Wait 3 seconds to ensure all units are positioned on the field
                         await Task.Delay(3000, token);
 
-                        ScanAndDumpRamza(outputPath);
+                        DumpActiveCombatants(outputPath);
                         _dumpedThisBattle = true;
                     }
                     else if (!inBattle)
@@ -62,86 +64,56 @@ public class Mod : IMod
         }, token);
     }
 
-    private static void ScanAndDumpRamza(string outputPath)
+    private static void DumpActiveCombatants(string outputPath)
     {
         var sb = new StringBuilder();
-        sb.AppendLine($"=== FFT BATTLE UNIT REAL-TIME SCAN ({DateTime.Now}) ===");
+        sb.AppendLine($"=== FFT ACTIVE BATTLE UNIT OCCUPANCY DUMP ({DateTime.Now}) ===");
         sb.AppendLine($"Module ASLR Offset: 0x{Mem.AslrOffset:X}");
         sb.AppendLine();
 
-        var process = Process.GetCurrentProcess();
-        var mainModule = process.MainModule;
-        if (mainModule == null) return;
+        int activeFound = 0;
 
-        long baseAddr = mainModule.BaseAddress.ToInt64();
-        int size = mainModule.ModuleMemorySize;
-
-        byte[] asciiRamza = Encoding.ASCII.GetBytes("Ramza");
-        byte[] unicodeRamza = Encoding.Unicode.GetBytes("Ramza");
-
-        // Scan the module's data space in 1MB chunks
-        int chunkSize = 0x100000;
-        int hitCount = 0;
-
-        for (int offset = 0; offset < size; offset += chunkSize)
+        for (int k = 0; k < TotalSlots; k++)
         {
-            int toRead = Math.Min(chunkSize + 64, size - offset);
-            byte[] chunk = Mem.ReadBytes(baseAddr + offset, toRead);
-            if (chunk.Length == 0) continue;
+            long slotAddr = Slot0Base + (k * SlotStride);
+            byte[] data = Mem.ReadBytes(slotAddr, 256); // Read first 256 bytes
 
-            for (int i = 0; i < chunk.Length - 16; i++)
+            // Check if slot has non-zero combatant data
+            bool isNonZero = false;
+            for (int i = 0; i < data.Length; i++)
             {
-                bool isAscii = MatchPattern(chunk, i, asciiRamza);
-                bool isUnicode = !isAscii && MatchPattern(chunk, i, unicodeRamza);
-
-                if (isAscii || isUnicode)
-                {
-                    hitCount++;
-                    long matchAddress = baseAddr + offset + i;
-
-                    sb.AppendLine($"[MATCH #{hitCount}] {(isAscii ? "ASCII" : "Unicode")} 'Ramza' found at 0x{matchAddress:X}");
-                    sb.AppendLine($"Offset from Module Base: +0x{(matchAddress - baseAddr):X}");
-
-                    // Dump 64 bytes before the name and 128 bytes after the name
-                    long startDump = Math.Max(baseAddr, matchAddress - 64);
-                    byte[] unitSlice = Mem.ReadBytes(startDump, 192);
-
-                    sb.AppendLine($"--- Memory Window around Match (0x{startDump:X}) ---");
-                    for (int r = 0; r < unitSlice.Length; r += 16)
-                    {
-                        sb.Append($"+0x{r:X2}: ");
-                        for (int b = 0; b < 16 && (r + b) < unitSlice.Length; b++)
-                        {
-                            sb.Append($"{unitSlice[r + b]:X2} ");
-                            if (b == 7) sb.Append(" ");
-                        }
-                        sb.AppendLine();
-                    }
-                    sb.AppendLine();
-
-                    if (hitCount >= 5) break; // First few hits are enough to identify the unit table
-                }
+                if (data[i] != 0) { isNonZero = true; break; }
             }
 
-            if (hitCount >= 5) break;
+            if (isNonZero)
+            {
+                activeFound++;
+                byte posX = data[0x2F];
+                byte posY = data[0x30];
+
+                sb.AppendLine($"=== [ACTIVE UNIT #{activeFound}] Slot #{k} at 0x{slotAddr:X} (Field Position: X={posX}, Y={posY}) ===");
+                for (int r = 0; r < data.Length; r += 16)
+                {
+                    sb.Append($"+0x{r:X2}: ");
+                    for (int b = 0; b < 16 && (r + b) < data.Length; b++)
+                    {
+                        sb.Append($"{data[r + b]:X2} ");
+                        if (b == 7) sb.Append(" ");
+                    }
+                    sb.AppendLine();
+                }
+                sb.AppendLine();
+            }
         }
 
-        if (hitCount == 0)
+        sb.AppendLine($"Total Active Units Deployed on Map: {activeFound} (Scanned {TotalSlots} slots)");
+
+        if (activeFound == 0)
         {
-            sb.AppendLine("No matches for 'Ramza' found in current module memory.");
+            sb.AppendLine("No non-zero slots found in current 65-slot block.");
         }
 
         File.WriteAllText(outputPath, sb.ToString());
-    }
-
-    private static bool MatchPattern(byte[] buffer, int index, byte[] pattern)
-    {
-        if (index + pattern.Length > buffer.Length) return false;
-        for (int p = 0; p < pattern.Length; p++)
-        {
-            if (buffer[index + p] != pattern[p]) return false;
-        }
-        return true;
     }
 
     public void Suspend() { }
