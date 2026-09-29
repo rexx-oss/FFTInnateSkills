@@ -29,6 +29,4 @@ Turn on only **2 to 3 abilities at a time** to avoid hitting the cap (especially
 
 
 ### Credits
-* **Mod Loader:** [Nenkai](https://github.com/Nenkai)
-* **Job Table Reference:** [prawl](https://github.com/prawl/FFTTreasureMaster)
 * **Mod:** Vibe-coded with Google Gemini 🤖
