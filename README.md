@@ -4,6 +4,7 @@ A Reloaded-II mod for **Final Fantasy Tactics: The Ivalice Chronicles** that gra
 
 All abilities are **default OFF**—open the mod configuration in Reloaded-II to toggle the ones you want.
 
+**No Enemy Spillover:** Keep `Apply to Generic Jobs` set to `OFF` to restrict innates to unique story units only. Set to `ON` to include all generic jobs (enemies will share them).
 
 ### Supported Innate Skills
 * **Combat Passives:** Dual Wield (`477`), Doublehand (`476`), Swiftness (`491`), Halve MP (`493`), Concentration (`469`), Attack Boost (`465`), Defense Boost (`466`), Magick Boost (`467`), Magick Def Boost (`468`), Brawler (`472`).
